@@ -1,6 +1,6 @@
 # Binance Futures Testnet Trading Bot
 
-A CLI trading bot that places **Market** and **Limit** orders on the Binance Futures Testnet (USDT-M) with structured logging and error handling.
+A CLI + Web trading bot that places **Market** and **Limit** orders on the Binance Futures Testnet (USDT-M) with structured logging and error handling.
 
 ## Project Structure
 
@@ -12,7 +12,10 @@ trading_bot/
 │   ├── orders.py          # Order placement logic
 │   ├── validators.py      # Input validation
 │   └── logging_config.py  # Dual-handler logging (console + file)
+├── templates/
+│   └── index.html         # Web dashboard UI
 ├── cli.py                 # CLI entry point (argparse)
+├── app.py                 # Flask web dashboard
 ├── logs/
 │   └── trading_bot.log    # Auto-created at runtime
 ├── .env.example
@@ -49,29 +52,37 @@ BINANCE_API_SECRET=your_api_secret_here
 
 ## Usage
 
-### Place a Market order
+### Option 1: CLI (Command Line)
 
+**Place a Market order:**
 ```bash
 python cli.py --symbol BTCUSDT --side BUY --type MARKET --quantity 0.001
 ```
 
-### Place a Limit order
-
+**Place a Limit order:**
 ```bash
 python cli.py --symbol BTCUSDT --side SELL --type LIMIT --quantity 0.001 --price 50000
 ```
 
-### Demo mode (no API keys needed)
-
-If you don't have valid testnet API keys, you can use `--demo` to simulate orders.
-The demo mode fetches real-time prices from the Binance public API and simulates order responses.
-
+**Demo mode (no API keys needed):**
 ```bash
 python cli.py --symbol BTCUSDT --side BUY --type MARKET --quantity 0.001 --demo
 python cli.py --symbol ETHUSDT --side SELL --type LIMIT --quantity 0.05 --price 1800 --demo
 ```
 
-### View help
+### Option 2: Web Dashboard (Bonus Feature)
+
+```bash
+python app.py
+```
+
+Then open **http://localhost:5000** in your browser. The dashboard features:
+- Live price ticker for BTC, ETH, BNB
+- Visual order form with BUY/SELL and MARKET/LIMIT toggles
+- Order history table with real-time updates
+- Toast notifications for order status
+
+### View CLI help
 
 ```bash
 python cli.py --help
@@ -106,7 +117,7 @@ The bot handles:
 
 ## Assumptions
 
-- Uses **direct REST calls** with HMAC-SHA256 signing (no `python-binance` dependency)
+- Uses **direct REST calls** with HMAC-SHA256 signing
 - Testnet base URL: `https://testnet.binancefuture.com`
 - LIMIT orders default to `GTC` (Good-Til-Cancelled) time-in-force
 - API credentials are loaded from a `.env` file in the project root
