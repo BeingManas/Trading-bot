@@ -1,3 +1,19 @@
+# Environment variables (contains API secrets!)
 .env
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+
+# Log files
+logs/*.log
+
+# IDE
+.vscode/
+.idea/
+pyrightconfig.json
+
+# OS files
+.DS_Store
+Thumbs.db

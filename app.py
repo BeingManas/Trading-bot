@@ -26,11 +26,15 @@ order_history = []
 
 
 def get_client():
-    """Create a Binance client (demo mode if no keys)."""
+    """Create a Binance client. Uses real API if keys are set, demo mode otherwise."""
     api_key = os.getenv("BINANCE_API_KEY", "")
     api_secret = os.getenv("BINANCE_API_SECRET", "")
-    # Use demo mode since testnet keys are hard to get
-    demo = True
+    # Auto-detect: use real API if keys exist, demo mode if not
+    demo = not (api_key and api_secret)
+    if demo:
+        logger.info("No API keys found — running in DEMO mode (simulated orders)")
+    else:
+        logger.info("API keys found — running in LIVE TESTNET mode")
     return BinanceClient(api_key=api_key, api_secret=api_secret, demo=demo)
 
 
