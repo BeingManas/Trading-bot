@@ -10,12 +10,6 @@ import os
 def setup_logging():
     """Set up logging to console and file."""
 
-    # Create logs folder if it doesn't exist
-    log_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-    os.makedirs(log_folder, exist_ok=True)
-
-    log_file = os.path.join(log_folder, "trading_bot.log")
-
     # Create our logger
     logger = logging.getLogger("trading_bot")
     logger.setLevel(logging.DEBUG)
@@ -37,10 +31,18 @@ def setup_logging():
     logger.addHandler(console)
 
     # Handler 2: Save to file (everything, including DEBUG)
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    # Wrapped in try/except for serverless environments (e.g. Vercel)
+    try:
+        log_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+        os.makedirs(log_folder, exist_ok=True)
+        log_file = os.path.join(log_folder, "trading_bot.log")
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        logger.info("Logging started. Log file: %s", log_file)
+    except (OSError, PermissionError):
+        logger.info("Logging started (console only — file logging unavailable)")
 
-    logger.info("Logging started. Log file: %s", log_file)
     return logger
+
