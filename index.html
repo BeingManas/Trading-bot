@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0e11;
+            color: #eaecef;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0b0e11 0%, #1a1e23 100%);
+            border-bottom: 1px solid #2b2f36;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #f0b90b 0%, #f8d12f 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #0b0e11;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #eaecef;
+        }
+
+        .header h1 span {
+            color: #f0b90b;
+        }
+
+        .header .badge {
+            background: rgba(240, 185, 11, 0.15);
+            color: #f0b90b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(240, 185, 11, 0.3);
+        }
+
+        /* Main Layout */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: #1e2329;
+            border-radius: 16px;
+            border: 1px solid #2b2f36;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #2b2f36;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body { padding: 24px; }
+
+        /* Price Ticker */
+        .price-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            grid-column: 1 / -1;
+        }
+
+        .price-card {
+            background: #1e2329;
+            border: 1px solid #2b2f36;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f0b90b, #f8d12f);
+        }
+
+        .price-card .symbol {
+            font-size: 13px;
+            color: #848e9c;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .price-card .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #eaecef;
+        }
+
+        .price-card .price.loading {
+            color: #848e9c;
+            font-size: 16px;
+        }
+
+        /* Order Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #848e9c;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #2b2f36;
+            border: 1px solid #363b44;
+            border-radius: 8px;
+            color: #eaecef;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #f0b90b;
+            box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #5e6673;
+        }
+
+        /* Side Toggle */
+        .side-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .side-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .side-btn.buy {
+            background: #2b2f36;
+            color: #848e9c;
+        }
+
+        .side-btn.buy.active {
+            background: #0ecb81;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(14, 203, 129, 0.3);
+        }
+
+        .side-btn.sell {
+            background: #2b2f36;
+            color: #848e9c;
+        }
+
+        .side-btn.sell.active {
+            background: #f6465d;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(246, 70, 93, 0.3);
+        }
+
+        /* Type Toggle */
+        .type-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            padding: 10px;
+            border: 1px solid #363b44;
+            border-radius: 8px;
+            background: #2b2f36;
+            color: #848e9c;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .type-btn.active {
+            border-color: #f0b90b;
+            color: #f0b90b;
+            background: rgba(240, 185, 11, 0.08);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .submit-btn.buy {
+            background: linear-gradient(135deg, #0ecb81 0%, #0ab571 100%);
+            color: #fff;
+        }
+
+        .submit-btn.buy:hover {
+            box-shadow: 0 6px 24px rgba(14, 203, 129, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn.sell {
+            background: linear-gradient(135deg, #f6465d 0%, #d9304a 100%);
+            color: #fff;
+        }
+
+        .submit-btn.sell:hover {
+            box-shadow: 0 6px 24px rgba(246, 70, 93, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Order History Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #848e9c;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #2b2f36;
+        }
+
+        .history-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(43, 47, 54, 0.5);
+        }
+
+        .history-table tr {
+            transition: background 0.15s;
+        }
+
+        .history-table tbody tr:hover {
+            background: rgba(43, 47, 54, 0.5);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.filled {
+            background: rgba(14, 203, 129, 0.15);
+            color: #0ecb81;
+        }
+
+        .status-badge.new {
+            background: rgba(240, 185, 11, 0.15);
+            color: #f0b90b;
+        }
+
+        .side-badge {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .side-badge.buy { color: #0ecb81; }
+        .side-badge.sell { color: #f6465d; }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #5e6673;
+        }
+
+        .empty-state .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 3s forwards;
+            max-width: 360px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.success {
+            background: #0ecb81;
+            color: #fff;
+        }
+
+        .toast.error {
+            background: #f6465d;
+            color: #fff;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Price pulse animation */
+        @keyframes pricePulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .price-updating {
+            animation: pricePulse 1s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+            .price-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">TB</div>
+            <h1>Trading<span>Bot</span></h1>
+        </div>
+        <span class="badge">FUTURES TESTNET - DEMO</span>
+    </header>
+
+    <!-- Price Ticker Bar -->
+    <div class="main">
+        <div class="price-bar">
+            <div class="price-card" id="btc-card">
+                <div class="symbol">BTC / USDT</div>
+                <div class="price loading" id="btc-price">Loading...</div>
+            </div>
+            <div class="price-card" id="eth-card">
+                <div class="symbol">ETH / USDT</div>
+                <div class="price loading" id="eth-price">Loading...</div>
+            </div>
+            <div class="price-card" id="bnb-card">
+                <div class="symbol">BNB / USDT</div>
+                <div class="price loading" id="bnb-price">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Order Form Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Place Order</h2>
+            </div>
+            <div class="card-body">
+                <form id="orderForm">
+                    <!-- Symbol -->
+                    <div class="form-group">
+                        <label>Symbol</label>
+                        <select id="symbol">
+                            <option value="BTCUSDT">BTC / USDT</option>
+                            <option value="ETHUSDT">ETH / USDT</option>
+                            <option value="BNBUSDT">BNB / USDT</option>
+                            <option value="SOLUSDT">SOL / USDT</option>
+                            <option value="XRPUSDT">XRP / USDT</option>
+                        </select>
+                    </div>
+
+                    <!-- Side Toggle -->
+                    <label style="font-size:13px;color:#848e9c;font-weight:500;margin-bottom:8px;display:block;">Side</label>
+                    <div class="side-toggle">
+                        <button type="button" class="side-btn buy active" onclick="setSide('BUY')">BUY / LONG</button>
+                        <button type="button" class="side-btn sell" onclick="setSide('SELL')">SELL / SHORT</button>
+                    </div>
+
+                    <!-- Type Toggle -->
+                    <label style="font-size:13px;color:#848e9c;font-weight:500;margin-bottom:8px;display:block;">Order Type</label>
+                    <div class="type-toggle">
+                        <button type="button" class="type-btn active" onclick="setType('MARKET')">Market</button>
+                        <button type="button" class="type-btn" onclick="setType('LIMIT')">Limit</button>
+                    </div>
+
+                    <!-- Price (for LIMIT) -->
+                    <div class="form-group" id="priceGroup" style="display:none;">
+                        <label>Price (USDT)</label>
+                        <input type="number" id="price" step="any" placeholder="Enter limit price">
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="quantity" step="any" placeholder="Enter quantity" value="0.001">
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="submit-btn buy" id="submitBtn">
+                        BUY / LONG
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order History Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Order History</h2>
+                <span id="orderCount" style="font-size:12px;color:#848e9c;">0 orders</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <div id="emptyState" class="empty-state">
+                    <div class="icon">&#128203;</div>
+                    <p>No orders placed yet</p>
+                    <p style="font-size:12px;margin-top:4px;">Place an order to see it here</p>
+                </div>
+                <table class="history-table" id="historyTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Symbol</th>
+                            <th>Side</th>
+                            <th>Type</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+        // State
+        let currentSide = 'BUY';
+        let currentType = 'MARKET';
+
+        // Side toggle
+        function setSide(side) {
+            currentSide = side;
+            document.querySelectorAll('.side-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.side-btn.${side.toLowerCase()}`).classList.add('active');
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.className = `submit-btn ${side.toLowerCase()}`;
+            submitBtn.textContent = side === 'BUY' ? 'BUY / LONG' : 'SELL / SHORT';
+        }
+
+        // Type toggle
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const priceGroup = document.getElementById('priceGroup');
+            priceGroup.style.display = type === 'LIMIT' ? 'block' : 'none';
+        }
+
+        // Show toast notification
+        function showToast(message, type) {
+            const container = document.getElementById('toasts');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        // Fetch live prices
+        async function fetchPrices() {
+            const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
+            const ids = ['btc-price', 'eth-price', 'bnb-price'];
+
+            for (let i = 0; i < symbols.length; i++) {
+                try {
+                    const res = await fetch(`/api/price/${symbols[i]}`);
+                    const data = await res.json();
+                    const el = document.getElementById(ids[i]);
+                    if (data.success) {
+                        const price = parseFloat(data.price);
+                        el.textContent = '$' + price.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                        el.classList.remove('loading');
+                        el.classList.add('price-updating');
+                        setTimeout(() => el.classList.remove('price-updating'), 1000);
+                    }
+                } catch (e) {
+                    // silently fail
+                }
+            }
+        }
+
+        // Add order to history table
+        function addToHistory(order) {
+            const emptyState = document.getElementById('emptyState');
+            const table = document.getElementById('historyTable');
+            const tbody = document.getElementById('historyBody');
+            const countEl = document.getElementById('orderCount');
+
+            emptyState.style.display = 'none';
+            table.style.display = 'table';
+
+            const sideClass = order.side.toLowerCase();
+            const statusClass = order.status.toLowerCase();
+
+            const row = document.createElement('tr');
+            row.style.animation = 'slideIn 0.3s ease';
+            row.innerHTML = `
+                <td style="font-family:monospace;font-size:12px;">${order.orderId}</td>
+                <td><strong>${order.symbol}</strong></td>
+                <td><span class="side-badge ${sideClass}">${order.side}</span></td>
+                <td>${order.type}</td>
+                <td>${order.quantity || order.origQty}</td>
+                <td>${order.avgPrice || order.price}</td>
+                <td><span class="status-badge ${statusClass}">${order.status}</span></td>
+            `;
+
+            tbody.insertBefore(row, tbody.firstChild);
+
+            const count = tbody.querySelectorAll('tr').length;
+            countEl.textContent = `${count} order${count !== 1 ? 's' : ''}`;
+        }
+
+        // Submit order
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span>Placing Order...';
+
+            const symbol = document.getElementById('symbol').value;
+            const quantity = document.getElementById('quantity').value;
+            const price = document.getElementById('price').value;
+
+            const body = {
+                symbol: symbol,
+                side: currentSide,
+                type: currentType,
+                quantity: quantity
+            };
+
+            if (currentType === 'LIMIT' && price) {
+                body.price = price;
+            }
+
+            if (currentType === 'LIMIT' && !price) {
+                showToast('Price is required for LIMIT orders', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                return;
+            }
+
+            if (!quantity || parseFloat(quantity) <= 0) {
+                showToast('Enter a valid quantity', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/place-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast(`Order placed! ID: ${data.data.orderId}`, 'success');
+                    addToHistory(data.data);
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (err) {
+                showToast('Failed to connect to server', 'error');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        });
+
+        // Init
+        fetchPrices();
+        setInterval(fetchPrices, 10000); // Refresh prices every 10 seconds
+    </script>
+</body>
+</html>
